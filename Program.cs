@@ -14,21 +14,23 @@ namespace overflow_watcher
 
             System.Console.WriteLine($"monitoring process {processId}");
 
-            var proc = Process.Start(new ProcessStartInfo
-            {
-                RedirectStandardOutput = true,
-                FileName = "/usr/bin/nstat",
-                Arguments = "-az",
-            });
-
-            string poop = proc.StandardOutput.ReadToEnd();
-
             long lastCount = 0;
 
             int i = 1;
 
             while (true)
             {
+                var proc = Process.Start(new ProcessStartInfo
+                {
+                    RedirectStandardOutput = true,
+                    FileName = "/usr/bin/nstat",
+                    Arguments = "-az",
+                });
+
+		string poop = proc.StandardOutput.ReadToEnd();
+
+                proc.WaitForExit();
+
                 var overflowCount = long.Parse(Regex.Match(poop, "TcpExtListenOverflows[ ]*([0-9]+)").Groups[1].Value);
 
                 if (lastCount > 0)
